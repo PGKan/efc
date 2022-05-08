@@ -1,0 +1,61 @@
+/** CLAF/1.0;PSJ/1.0;PJR */
+/* The EFC do not use the PGLib-CLI library, since the EFC should not
+ * depend on any library by design. All CLAF definition will never be read in
+ * the future. However, the definition file be keep getting update as any
+ * documentation of the EFC as application.
+ */
+ {
+    "#psj": {
+        "#version": "1.0",
+        "#definition": "#psj:pglj/claf.psj",
+        "#namespace": "#disabled"
+    },
+    "#h": ["AVAILABLE:FALSE", "$DOCUMENTATION"],
+    "claf": {
+        "commands": [
+            {
+                "name": "#default",
+                "arguments": "#ref:claf/parg",
+                "descriptions": "Calculate flight parameters from a flight plan.",
+                "usages": [
+                    {
+                        "key": "Type",
+                        "value": "#default",
+                        "position": ["FlightPlan"]
+                    }
+                ]
+            }
+        ],
+        "documents": [
+            {
+                "title": "Source-Repository:",
+                "contents": "\thttps://github.com/PGKan/efc"
+            }
+        ],
+        "parg": {
+            "named": [
+                {
+                    "name": "Version",
+                    "short": ["v"],
+                    "long": ["version"],
+                    "description": "show program version"
+                },
+                {
+                    "name": "File",
+                    "short": ["f"],
+                    "long": ["file"],
+                    "type": "String",
+                    "description": "load flight plan from file instead of using argument"
+                }
+            ],
+            "position": [
+                {
+                    "name": "FlightPlan",
+                    "type": "String",
+                    "description": "flight plan to be used to calculate flight parameters",
+                    "default": "P0/0"
+                }
+            ]
+        }
+    }
+}

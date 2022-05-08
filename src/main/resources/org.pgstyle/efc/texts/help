@@ -1,0 +1,11 @@
+Usage: <Java Command> [OPTION]... [-f|--file File] [FlightPlan]
+Calculate flight parameters from a flight plan.
+
+Arguments:
+    -h, --help         show this help document
+        --version      show program version
+    -f, --file         load flight plan from file instead of using argument
+    P:[FlightPlan<string>]{P0/0}
+                       flight plan to be used to calculate flight parameters
+Source-Repository:
+    https://github.com/PGKan/efc

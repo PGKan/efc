@@ -1,0 +1,55 @@
+##/** [text/x-java-properties;encoding=utf-8]NotatedResources;Properties */
+##/org.pgstyle/efc/resources
+# This is the resource entries list of the Elytra Flight Computer
+
+#---------------------------------------------------------------
+# development version parameter, comment or delete on release
+efc.dev.version = 20220507.02
+efc.dev.build = -(${efc.dev.version}-dev)
+# release version parameter, uncomment on release
+# efc.rel.build = -release
+#---------------------------------------------------------------
+
+#---------------------------------------------------------------
+# efc basic parameter
+#---------------------------------------------------------------
+efc.root = org.pgstyle/efc
+efc.name = pgstyle/efc
+efc.version = 1.0
+efc.build.meta = -nodep
+efc.build = ${efc.dev.build}${efc.build.meta}${efc.rel.build}
+#---------------------------------------------------------------
+
+#---------------------------------------------------------------
+# text resources
+#---------------------------------------------------------------
+efc.text.path = ${efc.root}/texts
+# heading text
+efc.text.head = &extern ${efc.text.path}/head
+# help text
+efc.text.help = &extern ${efc.text.path}/help
+# version text
+efc.text.version = ${efc.name}-${efc.version}${efc.build}
+#---------------------------------------------------------------
+
+#---------------------------------------------------------------
+# binary resources
+#---------------------------------------------------------------
+efc.font.path = ${efc.root}/fonts
+efc.icon.path = ${efc.root}/icons
+# fonts: Roboto Mono (Bold)
+# license: ${efc.root}/fonts/LICENSE.txt
+efc.font.mono = &binary ${efc.font.path}/mono.ttf
+efc.font.monobold = &binary ${efc.font.path}/mono-bold.ttf
+
+#===============================================================
+# LICENSE or COPYRIGHT NOTICE
+#===============================================================
+# The EFC Icon uses copyrighted assets of Mojang Studio. It is being used under
+# the Minecraft Brand and Asset Usage Guidelines and the Minecraft End User
+# License Agreements. If any derivative cannot compliant to the Minecraft Brand
+# and Asset Usage Guidelines or the Minecraft End User License Agreements, do
+# remove this resource entry and the EFC Icon file.
+#===============================================================
+# the EFC icon uses the Roboto Mono font
+efc.icon.efc = &binary ${efc.icon.path}/elytra.png
