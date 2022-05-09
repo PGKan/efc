@@ -2,23 +2,23 @@ package org.pgstyle.efc.model;
 
 public final class Waypoint {
 
-    public static Waypoint at(float x, float z) {
-        return Waypoint.at(x, z, 128);
+    public static Waypoint point(int x, int z) {
+        return Waypoint.point(x, z, 128);
     }
 
-    public static Waypoint at(float x, float z, int h) {
+    public static Waypoint point(int x, int z, int h) {
         return new Waypoint(false, x, 0, z, h);
     }
 
-    public static Waypoint at(float x, float y, float z) {
-        return new Waypoint(true, x, y, z, 0);
+    public static Waypoint location(int x, int y, int z) {
+        return Waypoint.location(x, y, z, 128);
     }
 
-    public static Waypoint at(float x, float y, float z, int h) {
+    public static Waypoint location(int x, int y, int z, int h) {
         return new Waypoint(true, x, y, z, h);
     }
 
-    private Waypoint(boolean l, float x, float y, float z, int h) {
+    private Waypoint(boolean l, int x, int y, int z, int h) {
         this.l = l;
         this.x = x;
         this.y = y;
@@ -27,50 +27,50 @@ public final class Waypoint {
     }
 
     private final boolean l;
-    private final float x;
-    private final float y;
-    private final float z;
+    private final int x;
+    private final int y;
+    private final int z;
     private final int h;
 
     public boolean isLocation() {
         return this.l;
     }
 
-    public float x() {
+    public int x() {
         return this.x;
     }
 
-    public float y() {
-        return this.y;
+    public int y() {
+        return this.isLocation() ? this.y : 0;
     }
 
-    public float z() {
+    public int z() {
         return this.z;
     }
 
-    public float h() {
+    public int h() {
         return this.h;
     }
 
-    public float absolute() {
-        return (float) Math.sqrt(this.x() * this.x() + this.y() * this.y() + this.z() * this.z());
+    public int absolute() {
+        return (int) Math.sqrt(this.x() * this.x() + this.y() * this.y() + this.z() * this.z());
     }
 
     public Waypoint normalise() {
-        float length = this.absolute();
-        return Waypoint.at(this.x() / length, -this.y() / length, -this.z() / length);
+        int length = this.absolute();
+        return new Waypoint(this.isLocation(), this.x() / length, -this.y() / length, -this.z() / length, this.h());
     }
 
     public Waypoint negate() {
-        return Waypoint.at(-this.x(), -this.y(), -this.z());
+        return new Waypoint(this.isLocation(), -this.x(), -this.y(), -this.z(), this.h());
     }
 
     public Waypoint translate(Waypoint location) {
         return this.translate(location.x(), location.y(), location.z());
     }
 
-    public Waypoint translate(float x, float y, float z) {
-        return Waypoint.at(this.x() + x, this.y() + y, this.z() + z);
+    public Waypoint translate(int x, int y, int z) {
+        return new Waypoint(this.isLocation(), this.x() + x, this.y() + y, this.z() + z, this.h());
     }
 
     @Override

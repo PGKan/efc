@@ -7,7 +7,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.AbstractMap.SimpleEntry;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,27 +19,26 @@ import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.pgstyle.efc.application.common.EfcComputingUnit;
 import org.pgstyle.efc.application.common.EfcUtils;
 import org.pgstyle.efc.model.Waypoint;
 
 /**
  * Frame controller for the config function of weight descriptors of the
- * {@link org.pgstyle.efc.random.WeightedRandomiser WeightedRandomiser}.
+ * {@code org.pgstyle.efc.random.WeightedRandomiser WeightedRandomiser}.
  *
  * @since Efc-2
  * @version Efc-2.0
@@ -50,7 +51,7 @@ public class EfcWaypointPanel extends JPanel {
      * {@code EfcWaypointPanel}. It contains an action button for adding and
      * removing cells and the input area for the weight and statement.
      */
-    private class EfcWeightCell extends JPanel {
+    private class EfcWaypointCell extends JPanel {
 
         /**
          * Event handler of the action button of a {@code EfcWeightCell}.
@@ -77,67 +78,36 @@ public class EfcWaypointPanel extends JPanel {
              * configuration dialog.
              */
             private void redraw() {
-                EfcWaypointPanel.this.waypoints.revalidate();
-                EfcWaypointPanel.this.waypoints.repaint();
-            }
-        }
-
-        /**
-         * Event handler of the weight text input of a {@code EfcWeightCell}.
-         */
-        private class CellValidation implements DocumentListener {
-
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                this.changedUpdate(e);
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                this.changedUpdate(e);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                // perform realtime syntax checking for weight descriptor statement
-                // syntax check on initialisation will be performed in the realise stage
-                if (EfcWeightCell.this.isRealised()) {
-                    try {
-                        // use the syntax checking function in the normalise method
-                        // EfcUtils.normalise(new SimpleEntry<>(EfcWeightCell.this.getStatement(), EfcWeightCell.this.getWeight()));
-                        // EfcWeightCell.this.statement.setBackground(Color.WHITE);
-                    }
-                    catch (RuntimeException ex) {
-                        // syntax error visual notification
-                        EfcWeightCell.this.statement.setBackground(Color.PINK);
-                    }
-                }
+                EfcWaypointPanel.this.redraw();
+                EfcWaypointPanel.this.waypointPanel.repaint();
             }
         }
 
         /**
          * Initialises a weight descriptor container unit.
-         *
-         * @param realise directly realises this cell when {@code true}
          */
-        public EfcWeightCell(boolean realise) {
+        public EfcWaypointCell() {
+            this(Waypoint.point(0, 0, 128));
+        }
+
+        public EfcWaypointCell(Waypoint waypoint) {
             // lock realising state
             this.realised = false;
             // create the subelements
             this.add = new JButton(EfcWaypointPanel.ADD);
             this.remove = new JButton(EfcWaypointPanel.REMOVE);
-            this.l = new JCheckBox();
-            this.x = new JSpinner(new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
-            this.y = new JSpinner(new SpinnerNumberModel(0, -64, 384, 2));
-            this.z = new JSpinner(new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
-            this.h = new JSpinner(new SpinnerNumberModel(0, 0, 128, 2));
+            this.mode = new JButton(waypoint.isLocation()? "L" : "P");
+            this.x = new JSpinner(new SpinnerNumberModel(waypoint.x(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
+            this.y = new JSpinner(new SpinnerNumberModel(waypoint.y(), -64, 384, 2));
+            this.z = new JSpinner(new SpinnerNumberModel(waypoint.z(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
+            this.h = new JSpinner(new SpinnerNumberModel(waypoint.h(), 0, 128, 2));
+            this.y.setEnabled(waypoint.isLocation());
 
             // setup the GUI appearance
             this.setMinimumSize(EfcWaypointPanel.CELL_SIZE);
             this.setPreferredSize(EfcWaypointPanel.CELL_SIZE);
             this.setMaximumSize(EfcWaypointPanel.CELL_SIZE);
             this.setBorder(BorderFactory.createEtchedBorder());
-            this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             this.add.setFont(EfcMainFrame.MONOBOLD);
             this.add.setMargin(new Insets(0, 0, 0, 0));
             this.add.setMinimumSize(EfcWaypointPanel.ACTION_SIZE);
@@ -145,42 +115,112 @@ public class EfcWaypointPanel extends JPanel {
             this.add.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
             this.add.setFocusPainted(false);
             this.remove.setFont(EfcMainFrame.MONOBOLD);
-            this.remove.setVisible(false);
             this.remove.setMargin(new Insets(0, 0, 0, 0));
             this.remove.setMinimumSize(EfcWaypointPanel.ACTION_SIZE);
             this.remove.setPreferredSize(EfcWaypointPanel.ACTION_SIZE);
             this.remove.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
             this.remove.setFocusPainted(false);
+            this.mode.setFont(EfcMainFrame.MONOBOLD);
+            this.mode.setMargin(new Insets(0, 0, 0, 0));
+            this.mode.setMinimumSize(EfcWaypointPanel.ACTION_SIZE);
+            this.mode.setPreferredSize(EfcWaypointPanel.ACTION_SIZE);
+            this.mode.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
+            this.mode.setFocusPainted(false);
+            this.x.setFont(EfcMainFrame.MONO);
+            this.y.setFont(EfcMainFrame.MONO);
+            this.z.setFont(EfcMainFrame.MONO);
+            this.h.setFont(EfcMainFrame.MONO);
+            ((JSpinner.NumberEditor) this.x.getEditor()).getTextField().setColumns(12);
+            ((JSpinner.NumberEditor) this.z.getEditor()).getTextField().setColumns(12);
+            ((JSpinner.NumberEditor) this.y.getEditor()).getTextField().setColumns(5);
+            ((JSpinner.NumberEditor) this.h.getEditor()).getTextField().setColumns(5);
+
+            JLabel xLabel = new JLabel("X");
+            JLabel yLabel = new JLabel("Y");
+            JLabel zLabel = new JLabel("Z");
+            JLabel hLabel = new JLabel("H");
+            xLabel.setFont(EfcMainFrame.MONOBOLD);
+            yLabel.setFont(EfcMainFrame.MONOBOLD);
+            zLabel.setFont(EfcMainFrame.MONOBOLD);
+            hLabel.setFont(EfcMainFrame.MONOBOLD);
+
+            // setup layout
+            GroupLayout layout = new GroupLayout(this);
+            this.setLayout(layout);
+            layout.setHorizontalGroup(
+                layout.createSequentialGroup()
+                      .addGroup(
+                          layout.createSequentialGroup()
+                                .addComponent(this.add)
+                                .addComponent(this.remove)
+                      )
+                      .addGroup(
+                          layout.createParallelGroup(Alignment.LEADING)
+                                .addGroup(
+                                    layout.createSequentialGroup()
+                                          .addGap(5)
+                                          .addComponent(xLabel)
+                                          .addComponent(this.x)
+                                          .addGap(5)
+                                          .addComponent(zLabel)
+                                          .addComponent(this.z)
+                                )
+                                .addGroup(
+                                    layout.createSequentialGroup()
+                                          .addGap(5)
+                                          .addComponent(this.mode)
+                                          .addGap(5)
+                                          .addComponent(yLabel)
+                                          .addComponent(this.y)
+                                          .addGap(5)
+                                          .addComponent(hLabel)
+                                          .addComponent(this.h)
+                                )
+                      )
+            );
+            layout.setVerticalGroup(
+                layout.createParallelGroup(Alignment.CENTER)
+                      .addGroup(
+                          layout.createParallelGroup(Alignment.CENTER)
+                                .addComponent(this.add)
+                                .addComponent(this.remove)
+                      )
+                      .addGroup(
+                          layout.createSequentialGroup()
+                                .addGroup(
+                                    layout.createParallelGroup()
+                                          .addComponent(xLabel)
+                                          .addComponent(this.x)
+                                          .addComponent(zLabel)
+                                          .addComponent(this.z)
+                                )
+                                .addGroup(
+                                    layout.createParallelGroup()
+                                          .addComponent(this.mode)
+                                          .addComponent(yLabel)
+                                          .addComponent(this.y)
+                                          .addComponent(hLabel)
+                                          .addComponent(this.h)
+                                )
+                      )
+            );
 
             // setup events
             this.add.addActionListener(this.new CellOperation((e -> this.add())));
             this.remove.addActionListener(this.new CellOperation((e -> this.remove())));
-
-
-            this.action = new JButton();
-            this.weight = new JSpinner(new SpinnerNumberModel(0, 0, 128, 2));
-            this.statement = new JTextField();
-            ((JSpinner.NumberEditor) this.weight.getEditor()).getTextField().setColumns(4);
-            this.statement.getDocument().addDocumentListener(this.new CellValidation());
+            this.mode.addActionListener(this.new CellOperation((e -> this.mode())));
 
             this.add(this.add);
             this.add(this.remove);
-            if (realise) {
-                this.realise(false, 0, 0, 0, 128);
-            }
         }
 
         private final JButton add;
         private final JButton remove;
-        private final JCheckBox l;
+        private final JButton mode;
         private final JSpinner x;
         private final JSpinner y;
         private final JSpinner z;
         private final JSpinner h;
-
-        private final JButton action;
-        private final JTextField statement;
-        private final JSpinner weight;
 
         private boolean realised;
 
@@ -200,50 +240,33 @@ public class EfcWaypointPanel extends JPanel {
          * @return a waypoint
          */
         public Waypoint getWaypoint() {
-            if (this.l.isSelected()) {
-                return Waypoint.at((Integer) this.x.getValue(), (Integer) this.y.getValue(), (Integer) this.z.getValue(), (Integer) this.h.getValue());
+            if (this.mode.getText().equals("L")) {
+                return Waypoint.location((Integer) this.x.getValue(), (Integer) this.y.getValue(), (Integer) this.z.getValue(), (Integer) this.h.getValue());
             }
             else {
-                return Waypoint.at((Integer) this.x.getValue(), (Integer) this.z.getValue(), (Integer) this.h.getValue());
+                return Waypoint.point((Integer) this.x.getValue(), (Integer) this.z.getValue(), (Integer) this.h.getValue());
             }
         }
 
         private void add() {
-            if (this.isRealised()) {
-                EfcWaypointPanel.this.waypoints.add(new EfcWeightCell(true));
-            }
-            else {
-                this.realise(false, 0, 0, 0, 128);
-            }
+            EfcWaypointPanel.this.waypointPanel.add(new EfcWaypointCell());
         }
     
         private void remove() {
-            EfcWaypointPanel.this.waypoints.remove(this);
+            EfcWaypointPanel.this.waypointPanel.remove(this);
+        }
+
+        private void mode() {
+            if (this.mode.getText().equals("L")) {
+                this.mode.setText("P");
+                this.y.setEnabled(false);
+            }
+            else {
+                this.mode.setText("L");
+                this.y.setEnabled(true);
+            }
         }
     
-        /**
-         * Realises this cell with the given values.
-         *
-         * @param weight the weight of the descriptor
-         * @param statement the statement of the descriptor
-         */
-        public void realise(boolean l, int x, int y, int z, int h) {
-            this.add(this.remove);
-            this.add(this.l);
-            this.add(this.x);
-            this.add(this.y);
-            this.add(this.z);
-            this.add(this.h);
-
-            this.l.setSelected(l);
-            this.x.setValue(x);
-            this.y.setValue(y);
-            this.z.setValue(z);
-            this.h.setValue(h);
-
-            this.realised = true;
-        }
-
         /**
          * Returns the string representation of this cell. Will return the
          * normalised form if possible.
@@ -254,20 +277,7 @@ public class EfcWaypointPanel extends JPanel {
          */
         @Override
         public String toString() {
-            try {
-                return this.weight.getValue() + ":" + EfcUtils.normalise(this.statement.getText());
-            }
-            catch (RuntimeException e) {
-                // syntax error
-                return this.weight.getValue() + ":" + this.statement.getText();
-            }
-        }
-
-        /**
-         * Performs the cell action bound the the action button.
-         */
-        private void action() {
-            this.action.getActionListeners()[0].actionPerformed(null);
+            return this.getWaypoint().toString();
         }
 
     }
@@ -276,17 +286,18 @@ public class EfcWaypointPanel extends JPanel {
      * Initialises the weight descriptor configuration dialog.
      *
      * @param main the controller of the main GUI
-     * @param parent the reference to the parent JFrame (EfcMainFrame)
      */
     public EfcWaypointPanel(EfcMainFrame main) {
         this.main = main;
+        this.waypoints = new ArrayList<>();
+
         // subelements
-        this.waypoints = new JPanel();
-        this.waypoints.setPreferredSize(new Dimension(CELL_SIZE.width, CELL_SIZE.height * 20));
-        this.waypoints.setLayout(new BoxLayout(waypoints, BoxLayout.PAGE_AXIS));
-        JScrollPane pane = new JScrollPane(waypoints,
+        this.waypointPanel = new JPanel();
+        this.waypointPanel.setLayout(new BoxLayout(waypointPanel, BoxLayout.PAGE_AXIS));
+        JScrollPane pane = new JScrollPane(waypointPanel,
                                            ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        pane.setPreferredSize(new Dimension(CELL_SIZE.width + 20, CELL_SIZE.height * 8));
         pane.setAutoscrolls(true);
         pane.getVerticalScrollBar().setUnitIncrement(24);
         this.add(pane);
@@ -294,6 +305,7 @@ public class EfcWaypointPanel extends JPanel {
         JButton load = new JButton("<<");
         load.setFont(EfcMainFrame.MONOBOLD);
         load.setFocusPainted(false);
+        load.addActionListener(e -> this.load());
         buttons.add(load);
         JButton apply = new JButton(">>");
         apply.setFont(EfcMainFrame.MONOBOLD);
@@ -308,7 +320,7 @@ public class EfcWaypointPanel extends JPanel {
     }
 
     /** The size of a cell in the weight descriptor configuration dialog. */
-    private static final Dimension CELL_SIZE = new Dimension(250, 24);
+    private static final Dimension CELL_SIZE = new Dimension(340, 52);
     /** The size of the action button in a cell. */
     private static final Dimension ACTION_SIZE = new Dimension(24, 24);
     /** String constant of the {@code Remove} action. */
@@ -319,7 +331,35 @@ public class EfcWaypointPanel extends JPanel {
     /** Reference to the main window's controller. */
     private EfcMainFrame main;
     /** Panel for holding all weight configuration cells. */
-    private JPanel waypoints;
+    private JPanel waypointPanel;
+
+    private List<Waypoint> waypoints;
+
+    public void apply() {
+        // TODO to main
+    }
+
+    public void load() {
+        String flightPlan = this.main.getFlightPlan();
+        try {
+            this.waypoints = EfcComputingUnit.getWaypoints(flightPlan);
+            this.reload();
+        }
+        catch (RuntimeException e) {
+            this.main.write(e.getMessage());
+        }
+    }
+
+    private void reload() {
+        this.waypointPanel.removeAll();
+        this.waypoints.stream().map(EfcWaypointCell::new).forEach(this.waypointPanel::add);
+        this.redraw();
+    }
+
+    private void redraw() {
+        this.revalidate();
+        this.repaint();
+    }
 
     /**
      * Closes this configuration dialog and do not update the weight descriptor.
@@ -355,12 +395,12 @@ public class EfcWaypointPanel extends JPanel {
      * @param list the list of descriptor entries
      */
     private void load(List<Entry<String, Integer>> list) {
-        this.waypoints.removeAll();
-        this.waypoints.add(new EfcWeightCell(false));
+        this.waypointPanel.removeAll();
+        this.waypointPanel.add(new EfcWaypointCell());
         for (int i = 0; i < list.size(); i++) {
             Entry<String, Integer> entry = list.get(i);
-            EfcWeightCell cell = (EfcWeightCell) this.waypoints.getComponent(i);
-            cell.action();
+            EfcWaypointCell cell = (EfcWaypointCell) this.waypointPanel.getComponent(i);
+            // cell.action();
             // cell.realise(entry.getValue(), entry.getKey());
         }
     }
@@ -373,10 +413,10 @@ public class EfcWaypointPanel extends JPanel {
      */
     @Override
     public String toString() {
-        return Arrays.stream(this.waypoints.getComponents())
-                     .map(EfcWeightCell.class::cast)
-                     .filter(EfcWeightCell::isRealised)
-                     .map(EfcWeightCell::toString)
+        return Arrays.stream(this.waypointPanel.getComponents())
+                     .map(EfcWaypointCell.class::cast)
+                     .filter(EfcWaypointCell::isRealised)
+                     .map(EfcWaypointCell::toString)
                      .collect(Collectors.joining(";"));
     }
 

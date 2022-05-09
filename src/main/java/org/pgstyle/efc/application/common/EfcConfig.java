@@ -45,9 +45,9 @@ public final class EfcConfig {
     }
 
     /**
-     * Sets the seed of this configuration container.
+     * Sets the flightPlan of this configuration container.
      *
-     * @param seed the seed to be stored
+     * @param flightPlan the flightPlan to be stored
      */
     public void flightPlan(String flightPlan) {
         this.flightPlan = Objects.requireNonNull(flightPlan, "flightPlan == null");

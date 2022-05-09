@@ -1,8 +1,5 @@
 package org.pgstyle.efc.application;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import org.pgstyle.efc.application.cli.CmdUtils;
@@ -12,7 +9,6 @@ import org.pgstyle.efc.application.common.EfcConfig;
 import org.pgstyle.efc.application.common.EfcResources;
 import org.pgstyle.efc.application.common.EfcUtils;
 import org.pgstyle.efc.application.gui.EfcMainFrame;
-import org.pgstyle.rst2.application.common.RandomStringGenerator;
 
 public final class ElytraFlightComputer implements Callable<Integer> {
 

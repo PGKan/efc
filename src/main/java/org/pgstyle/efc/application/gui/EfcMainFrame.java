@@ -232,7 +232,7 @@ public final class EfcMainFrame {
         JScrollPane pane = new JScrollPane(this.output,
                                                  ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                                                  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        this.output.setColumns(48);
+        this.output.setColumns(64);
         this.output.setFont(MONO);
         this.output.setLineWrap(true);
         this.output.setEditable(false);
@@ -278,6 +278,10 @@ public final class EfcMainFrame {
                         )
                         .addGap(5)
         );
+    }
+
+    public String getFlightPlan() {
+        return this.flightPlan.getText();
     }
 
     /**
