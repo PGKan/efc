@@ -2,6 +2,10 @@ package org.pgstyle.efc.model;
 
 public final class Waypoint {
 
+    public static Waypoint origin() {
+        return Waypoint.point(0, 0);
+    }
+
     public static Waypoint point(int x, int z) {
         return Waypoint.point(x, z, 128);
     }
@@ -76,10 +80,10 @@ public final class Waypoint {
     @Override
     public String toString() {
         if (this.isLocation()) {
-            return String.format("[%.1f,%.1f,%.1f/%d]", this.x(), this.y(), this.z(), this.h());
+            return String.format("L%d/%d/%d/H%d", this.x(), this.y(), this.z(), this.h());
         }
         else {
-            return String.format("[%.1f,%.1f/%d]", this.x(), this.z(), this.h());
+            return String.format("P%d/%d/H%d", this.x(), this.z(), this.h());
         }
     }
 

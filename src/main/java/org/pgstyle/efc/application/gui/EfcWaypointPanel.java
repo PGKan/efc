@@ -13,9 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -91,8 +94,6 @@ public class EfcWaypointPanel extends JPanel {
         }
 
         public EfcWaypointCell(Waypoint waypoint) {
-            // lock realising state
-            this.realised = false;
             // create the subelements
             this.add = new JButton(EfcWaypointPanel.ADD);
             this.remove = new JButton(EfcWaypointPanel.REMOVE);
@@ -222,18 +223,6 @@ public class EfcWaypointPanel extends JPanel {
         private final JSpinner z;
         private final JSpinner h;
 
-        private boolean realised;
-
-        /**
-         * Returns {@code true} if this cell has finished realising.
-         *
-         * @return {@code true} if this cell has finished realising; or
-         *         {@code false} otherwise
-         */
-        public boolean isRealised() {
-            return this.realised;
-        }
-
         /**
          * Returns a waypoint from the value of this cell.
          *
@@ -249,11 +238,13 @@ public class EfcWaypointPanel extends JPanel {
         }
 
         private void add() {
-            EfcWaypointPanel.this.waypointPanel.add(new EfcWaypointCell());
+            EfcWaypointPanel.this.waypoints.add(EfcWaypointPanel.this.waypoints.indexOf(this) + 1, new EfcWaypointCell());
+            EfcWaypointPanel.this.reload();
         }
     
         private void remove() {
-            EfcWaypointPanel.this.waypointPanel.remove(this);
+            EfcWaypointPanel.this.waypoints.remove(EfcWaypointPanel.this.waypoints.indexOf(this));
+            EfcWaypointPanel.this.reload();
         }
 
         private void mode() {
@@ -310,10 +301,11 @@ public class EfcWaypointPanel extends JPanel {
         JButton apply = new JButton(">>");
         apply.setFont(EfcMainFrame.MONOBOLD);
         apply.setFocusPainted(false);
+        apply.addActionListener(e -> this.apply());
         buttons.add(apply);
         this.add(buttons, BorderLayout.EAST);
 
-        this.load(Collections.EMPTY_LIST);
+        this.load();
         // setup events
         // commit.addActionListener(e -> this.commit());
         // abort.addActionListener(e -> this.abort());
@@ -333,16 +325,19 @@ public class EfcWaypointPanel extends JPanel {
     /** Panel for holding all weight configuration cells. */
     private JPanel waypointPanel;
 
-    private List<Waypoint> waypoints;
+    private List<EfcWaypointCell> waypoints;
 
     public void apply() {
-        // TODO to main
+        this.waypoints.clear();
+        Stream.of(this.waypointPanel.getComponents()).map(EfcWaypointCell.class::cast).forEach(this.waypoints::add);
+        this.main.updateFlightPlan(this.waypoints.stream().map(EfcWaypointCell::getWaypoint).map(Objects::toString).collect(Collectors.joining(" ")));
     }
 
     public void load() {
         String flightPlan = this.main.getFlightPlan();
         try {
-            this.waypoints = EfcComputingUnit.getWaypoints(flightPlan);
+            this.waypoints.clear();
+            EfcComputingUnit.getWaypoints(flightPlan).stream().map(EfcWaypointCell::new).forEach(this.waypoints::add);
             this.reload();
         }
         catch (RuntimeException e) {
@@ -352,7 +347,7 @@ public class EfcWaypointPanel extends JPanel {
 
     private void reload() {
         this.waypointPanel.removeAll();
-        this.waypoints.stream().map(EfcWaypointCell::new).forEach(this.waypointPanel::add);
+        this.waypoints.stream().forEach(this.waypointPanel::add);
         this.redraw();
     }
 
@@ -379,33 +374,6 @@ public class EfcWaypointPanel extends JPanel {
     }
 
     /**
-     * Opens this configuration dialog and load in the settings from the main
-     * GUI.
-     *
-     * @param weights the weights descriptor string
-     */
-    public void config(String weights) {
-        this.load(EfcUtils.dissect(weights));
-        this.setVisible(true);
-    }
-
-    /**
-     * Loads in the weight descriptor cells.
-     *
-     * @param list the list of descriptor entries
-     */
-    private void load(List<Entry<String, Integer>> list) {
-        this.waypointPanel.removeAll();
-        this.waypointPanel.add(new EfcWaypointCell());
-        for (int i = 0; i < list.size(); i++) {
-            Entry<String, Integer> entry = list.get(i);
-            EfcWaypointCell cell = (EfcWaypointCell) this.waypointPanel.getComponent(i);
-            // cell.action();
-            // cell.realise(entry.getValue(), entry.getKey());
-        }
-    }
-
-    /**
      * Returns the weight descriptor string of the settings from this
      * configuration dialog.
      * @return the weight descriptor string of the settings from this
@@ -415,7 +383,6 @@ public class EfcWaypointPanel extends JPanel {
     public String toString() {
         return Arrays.stream(this.waypointPanel.getComponents())
                      .map(EfcWaypointCell.class::cast)
-                     .filter(EfcWaypointCell::isRealised)
                      .map(EfcWaypointCell::toString)
                      .collect(Collectors.joining(";"));
     }

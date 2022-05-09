@@ -299,25 +299,8 @@ public final class EfcMainFrame {
     /**
      * Commits all configurations and engages the randomiser.
      */
-    private void commit() {
-        try {
-            // // load configuration from GUI configurator
-            // EfcConfig current = new EfcConfig();
-            // current.type(this.algorithm.getItemAt(this.algorithm.getSelectedIndex()));
-            // current.secure(this.secure.isSelected());
-            // current.ratio(Double.parseDouble(((JSpinner.NumberEditor) this.ratio.getEditor()).getTextField().getText()));
-            // current.clear();
-            // for (String weight : EfcUtils.safeSplit(this.weights.getText(), new char[] {';'})) {
-            //     current.put(weight);
-            // }
-            // current.seed(this.seed.getText());
-            // current.length(Integer.parseInt(((JSpinner.NumberEditor) this.length.getEditor()).getTextField().getText().replace(",", "")));
-            // // create randomiser with configuration and generate result
-            // this.rewrite(new RandomStringGenerator(current).generate());
-        }
-        catch (RuntimeException e) {
-            this.rewrite(EfcUtils.stackTraceOf(e));
-        }
+    public void updateFlightPlan(String flightPlan) {
+        this.flightPlan.setText(flightPlan);
     }
 
     /**
