@@ -80,10 +80,10 @@ public final class Waypoint {
     @Override
     public String toString() {
         if (this.isLocation()) {
-            return String.format("L%d/%d/%d/H%d", this.x(), this.y(), this.z(), this.h());
+            return String.format("L%d/%d/%d/%d", this.x(), this.y(), this.z(), this.h());
         }
         else {
-            return String.format("P%d/%d/H%d", this.x(), this.z(), this.h());
+            return String.format("P%d/%d/%d", this.x(), this.z(), this.h());
         }
     }
 

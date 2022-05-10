@@ -1,22 +1,17 @@
 package org.pgstyle.efc.application.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,14 +24,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import org.pgstyle.efc.application.common.EfcComputingUnit;
-import org.pgstyle.efc.application.common.EfcUtils;
 import org.pgstyle.efc.model.Waypoint;
 
 /**
@@ -98,11 +89,11 @@ public class EfcWaypointPanel extends JPanel {
             this.add = new JButton(EfcWaypointPanel.ADD);
             this.remove = new JButton(EfcWaypointPanel.REMOVE);
             this.mode = new JButton(waypoint.isLocation()? "L" : "P");
-            this.x = new JSpinner(new SpinnerNumberModel(waypoint.x(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
-            this.y = new JSpinner(new SpinnerNumberModel(waypoint.y(), -64, 384, 2));
-            this.z = new JSpinner(new SpinnerNumberModel(waypoint.z(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
-            this.h = new JSpinner(new SpinnerNumberModel(waypoint.h(), 0, 128, 2));
-            this.y.setEnabled(waypoint.isLocation());
+            this.longitude = new JSpinner(new SpinnerNumberModel(waypoint.x(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
+            this.level = new JSpinner(new SpinnerNumberModel(waypoint.y(), -64, 384, 2));
+            this.latitude = new JSpinner(new SpinnerNumberModel(waypoint.z(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
+            this.head = new JSpinner(new SpinnerNumberModel(waypoint.h(), 0, 128, 2));
+            this.level.setEnabled(waypoint.isLocation());
 
             // setup the GUI appearance
             this.setMinimumSize(EfcWaypointPanel.CELL_SIZE);
@@ -127,14 +118,14 @@ public class EfcWaypointPanel extends JPanel {
             this.mode.setPreferredSize(EfcWaypointPanel.ACTION_SIZE);
             this.mode.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
             this.mode.setFocusPainted(false);
-            this.x.setFont(EfcMainFrame.MONO);
-            this.y.setFont(EfcMainFrame.MONO);
-            this.z.setFont(EfcMainFrame.MONO);
-            this.h.setFont(EfcMainFrame.MONO);
-            ((JSpinner.NumberEditor) this.x.getEditor()).getTextField().setColumns(12);
-            ((JSpinner.NumberEditor) this.z.getEditor()).getTextField().setColumns(12);
-            ((JSpinner.NumberEditor) this.y.getEditor()).getTextField().setColumns(5);
-            ((JSpinner.NumberEditor) this.h.getEditor()).getTextField().setColumns(5);
+            this.longitude.setFont(EfcMainFrame.MONO);
+            this.level.setFont(EfcMainFrame.MONO);
+            this.latitude.setFont(EfcMainFrame.MONO);
+            this.head.setFont(EfcMainFrame.MONO);
+            ((JSpinner.NumberEditor) this.longitude.getEditor()).getTextField().setColumns(12);
+            ((JSpinner.NumberEditor) this.latitude.getEditor()).getTextField().setColumns(12);
+            ((JSpinner.NumberEditor) this.level.getEditor()).getTextField().setColumns(5);
+            ((JSpinner.NumberEditor) this.head.getEditor()).getTextField().setColumns(5);
 
             JLabel xLabel = new JLabel("X");
             JLabel yLabel = new JLabel("Y");
@@ -161,10 +152,10 @@ public class EfcWaypointPanel extends JPanel {
                                     layout.createSequentialGroup()
                                           .addGap(5)
                                           .addComponent(xLabel)
-                                          .addComponent(this.x)
+                                          .addComponent(this.longitude)
                                           .addGap(5)
                                           .addComponent(zLabel)
-                                          .addComponent(this.z)
+                                          .addComponent(this.latitude)
                                 )
                                 .addGroup(
                                     layout.createSequentialGroup()
@@ -172,10 +163,10 @@ public class EfcWaypointPanel extends JPanel {
                                           .addComponent(this.mode)
                                           .addGap(5)
                                           .addComponent(yLabel)
-                                          .addComponent(this.y)
+                                          .addComponent(this.level)
                                           .addGap(5)
                                           .addComponent(hLabel)
-                                          .addComponent(this.h)
+                                          .addComponent(this.head)
                                 )
                       )
             );
@@ -191,17 +182,17 @@ public class EfcWaypointPanel extends JPanel {
                                 .addGroup(
                                     layout.createParallelGroup()
                                           .addComponent(xLabel)
-                                          .addComponent(this.x)
+                                          .addComponent(this.longitude)
                                           .addComponent(zLabel)
-                                          .addComponent(this.z)
+                                          .addComponent(this.latitude)
                                 )
                                 .addGroup(
                                     layout.createParallelGroup()
                                           .addComponent(this.mode)
                                           .addComponent(yLabel)
-                                          .addComponent(this.y)
+                                          .addComponent(this.level)
                                           .addComponent(hLabel)
-                                          .addComponent(this.h)
+                                          .addComponent(this.head)
                                 )
                       )
             );
@@ -218,10 +209,10 @@ public class EfcWaypointPanel extends JPanel {
         private final JButton add;
         private final JButton remove;
         private final JButton mode;
-        private final JSpinner x;
-        private final JSpinner y;
-        private final JSpinner z;
-        private final JSpinner h;
+        private final JSpinner longitude;
+        private final JSpinner level;
+        private final JSpinner latitude;
+        private final JSpinner head;
 
         /**
          * Returns a waypoint from the value of this cell.
@@ -230,10 +221,10 @@ public class EfcWaypointPanel extends JPanel {
          */
         public Waypoint getWaypoint() {
             if (this.mode.getText().equals("L")) {
-                return Waypoint.location((Integer) this.x.getValue(), (Integer) this.y.getValue(), (Integer) this.z.getValue(), (Integer) this.h.getValue());
+                return Waypoint.location((Integer) this.longitude.getValue(), (Integer) this.level.getValue(), (Integer) this.latitude.getValue(), (Integer) this.head.getValue());
             }
             else {
-                return Waypoint.point((Integer) this.x.getValue(), (Integer) this.z.getValue(), (Integer) this.h.getValue());
+                return Waypoint.point((Integer) this.longitude.getValue(), (Integer) this.latitude.getValue(), (Integer) this.head.getValue());
             }
         }
 
@@ -243,18 +234,23 @@ public class EfcWaypointPanel extends JPanel {
         }
     
         private void remove() {
-            EfcWaypointPanel.this.waypoints.remove(EfcWaypointPanel.this.waypoints.indexOf(this));
-            EfcWaypointPanel.this.reload();
+            if (EfcWaypointPanel.this.waypoints.size() > 1) {
+                EfcWaypointPanel.this.waypoints.remove(EfcWaypointPanel.this.waypoints.indexOf(this));
+                EfcWaypointPanel.this.reload();
+            }
+            else {
+                EfcWaypointPanel.this.main.write("Cannot remove all waypoint");
+            }
         }
 
         private void mode() {
             if (this.mode.getText().equals("L")) {
                 this.mode.setText("P");
-                this.y.setEnabled(false);
+                this.level.setEnabled(false);
             }
             else {
                 this.mode.setText("L");
-                this.y.setEnabled(true);
+                this.level.setEnabled(true);
             }
         }
     
@@ -292,7 +288,7 @@ public class EfcWaypointPanel extends JPanel {
         pane.setAutoscrolls(true);
         pane.getVerticalScrollBar().setUnitIncrement(24);
         this.add(pane);
-        JPanel buttons = new JPanel(new GridLayout(2, 1));
+        JPanel buttons = new JPanel(new GridLayout(3, 1));
         JButton load = new JButton("<<");
         load.setFont(EfcMainFrame.MONOBOLD);
         load.setFocusPainted(false);
@@ -303,6 +299,11 @@ public class EfcWaypointPanel extends JPanel {
         apply.setFocusPainted(false);
         apply.addActionListener(e -> this.apply());
         buttons.add(apply);
+        JButton reverse = new JButton("REV");
+        reverse.setFont(EfcMainFrame.MONOBOLD);
+        reverse.setFocusPainted(false);
+        reverse.addActionListener(e -> this.reverse());
+        buttons.add(reverse);
         this.add(buttons, BorderLayout.EAST);
 
         this.load();
@@ -325,7 +326,7 @@ public class EfcWaypointPanel extends JPanel {
     /** Panel for holding all weight configuration cells. */
     private JPanel waypointPanel;
 
-    private List<EfcWaypointCell> waypoints;
+    private transient List<EfcWaypointCell> waypoints;
 
     public void apply() {
         this.waypoints.clear();
@@ -343,6 +344,11 @@ public class EfcWaypointPanel extends JPanel {
         catch (RuntimeException e) {
             this.main.write(e.getMessage());
         }
+    }
+
+    private void reverse() {
+        Collections.reverse(this.waypoints);
+        this.reload();
     }
 
     private void reload() {

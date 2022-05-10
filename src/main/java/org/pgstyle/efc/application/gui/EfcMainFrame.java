@@ -183,11 +183,11 @@ public final class EfcMainFrame {
         // subelements
         JLabel label = new JLabel("Flight Plan:");
         label.setFont(EfcMainFrame.MONOBOLD);
-        JButton copy = new JButton("Copy");
+        JButton copy = new JButton("CPY");
         copy.setFont(EfcMainFrame.MONOBOLD);
         copy.setFocusPainted(false);
         copy.addActionListener(e -> this.copy(this.flightPlan));
-        JButton save = new JButton("Write");
+        JButton save = new JButton("OUT");
         save.setFont(EfcMainFrame.MONOBOLD);
         save.setFocusPainted(false);
         save.addActionListener(e -> this.saveFlightPlan());
@@ -220,11 +220,11 @@ public final class EfcMainFrame {
         // subelements
         JLabel label = new JLabel("Output:");
         label.setFont(EfcMainFrame.MONOBOLD);
-        JButton copy = new JButton("Copy");
+        JButton copy = new JButton("CPY");
         copy.setFont(EfcMainFrame.MONOBOLD);
         copy.setFocusPainted(false);
         copy.addActionListener(e -> this.copy(this.output));
-        JButton save = new JButton("Write");
+        JButton save = new JButton("OUT");
         save.setFont(EfcMainFrame.MONOBOLD);
         save.setFocusPainted(false);
         save.addActionListener(e -> this.saveOutput());
