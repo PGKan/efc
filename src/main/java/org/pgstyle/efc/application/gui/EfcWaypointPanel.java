@@ -1,6 +1,7 @@
 package org.pgstyle.efc.application.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -19,7 +20,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,6 +29,7 @@ import javax.swing.SpinnerNumberModel;
 
 import org.pgstyle.efc.application.common.EfcComputingUnit;
 import org.pgstyle.efc.model.Waypoint;
+import org.pgstyle.rst2.application.gui.EfcStandardButton;
 
 /**
  * Frame controller for the config function of weight descriptors of the
@@ -86,9 +87,9 @@ public class EfcWaypointPanel extends JPanel {
 
         public EfcWaypointCell(Waypoint waypoint) {
             // create the subelements
-            this.add = new JButton(EfcWaypointPanel.ADD);
-            this.remove = new JButton(EfcWaypointPanel.REMOVE);
-            this.mode = new JButton(waypoint.isLocation()? "L" : "P");
+            this.add = new EfcStandardButton(EfcWaypointPanel.ADD, this.new CellOperation((e -> this.add())));
+            this.remove = new EfcStandardButton(EfcWaypointPanel.REMOVE, this.new CellOperation((e -> this.remove())));
+            this.mode = new EfcStandardButton(waypoint.isLocation()? EfcWaypointPanel.L : EfcWaypointPanel.P, this.new CellOperation((e -> this.mode())));
             this.longitude = new JSpinner(new SpinnerNumberModel(waypoint.x(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
             this.level = new JSpinner(new SpinnerNumberModel(waypoint.y(), -64, 384, 2));
             this.latitude = new JSpinner(new SpinnerNumberModel(waypoint.z(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
@@ -96,28 +97,11 @@ public class EfcWaypointPanel extends JPanel {
             this.level.setEnabled(waypoint.isLocation());
 
             // setup the GUI appearance
-            this.setMinimumSize(EfcWaypointPanel.CELL_SIZE);
-            this.setPreferredSize(EfcWaypointPanel.CELL_SIZE);
-            this.setMaximumSize(EfcWaypointPanel.CELL_SIZE);
             this.setBorder(BorderFactory.createEtchedBorder());
-            this.add.setFont(EfcMainFrame.MONOBOLD);
-            this.add.setMargin(new Insets(0, 0, 0, 0));
-            this.add.setMinimumSize(EfcWaypointPanel.ACTION_SIZE);
-            this.add.setPreferredSize(EfcWaypointPanel.ACTION_SIZE);
-            this.add.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
-            this.add.setFocusPainted(false);
-            this.remove.setFont(EfcMainFrame.MONOBOLD);
-            this.remove.setMargin(new Insets(0, 0, 0, 0));
-            this.remove.setMinimumSize(EfcWaypointPanel.ACTION_SIZE);
-            this.remove.setPreferredSize(EfcWaypointPanel.ACTION_SIZE);
-            this.remove.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
-            this.remove.setFocusPainted(false);
-            this.mode.setFont(EfcMainFrame.MONOBOLD);
-            this.mode.setMargin(new Insets(0, 0, 0, 0));
-            this.mode.setMinimumSize(EfcWaypointPanel.ACTION_SIZE);
-            this.mode.setPreferredSize(EfcWaypointPanel.ACTION_SIZE);
-            this.mode.setMaximumSize(EfcWaypointPanel.ACTION_SIZE);
-            this.mode.setFocusPainted(false);
+            EfcWaypointPanel.applySize(this, EfcWaypointPanel.CELL_SIZE);
+            EfcWaypointPanel.applySize(this.add, EfcWaypointPanel.ACTION_SIZE);
+            EfcWaypointPanel.applySize(this.remove, EfcWaypointPanel.ACTION_SIZE);
+            EfcWaypointPanel.applySize(this.mode, EfcWaypointPanel.ACTION_SIZE);
             this.longitude.setFont(EfcMainFrame.MONO);
             this.level.setFont(EfcMainFrame.MONO);
             this.latitude.setFont(EfcMainFrame.MONO);
@@ -150,23 +134,14 @@ public class EfcWaypointPanel extends JPanel {
                           layout.createParallelGroup(Alignment.LEADING)
                                 .addGroup(
                                     layout.createSequentialGroup()
-                                          .addGap(5)
-                                          .addComponent(xLabel)
-                                          .addComponent(this.longitude)
-                                          .addGap(5)
-                                          .addComponent(zLabel)
-                                          .addComponent(this.latitude)
+                                          .addGap(5).addComponent(xLabel).addComponent(this.longitude)
+                                          .addGap(5).addComponent(zLabel).addComponent(this.latitude)
                                 )
                                 .addGroup(
                                     layout.createSequentialGroup()
-                                          .addGap(5)
-                                          .addComponent(this.mode)
-                                          .addGap(5)
-                                          .addComponent(yLabel)
-                                          .addComponent(this.level)
-                                          .addGap(5)
-                                          .addComponent(hLabel)
-                                          .addComponent(this.head)
+                                          .addGap(5).addComponent(this.mode)
+                                          .addGap(5).addComponent(yLabel).addComponent(this.level)
+                                          .addGap(5).addComponent(hLabel).addComponent(this.head)
                                 )
                       )
             );
@@ -181,34 +156,22 @@ public class EfcWaypointPanel extends JPanel {
                           layout.createSequentialGroup()
                                 .addGroup(
                                     layout.createParallelGroup()
-                                          .addComponent(xLabel)
-                                          .addComponent(this.longitude)
-                                          .addComponent(zLabel)
-                                          .addComponent(this.latitude)
+                                          .addComponent(xLabel).addComponent(this.longitude)
+                                          .addComponent(zLabel).addComponent(this.latitude)
                                 )
                                 .addGroup(
                                     layout.createParallelGroup()
                                           .addComponent(this.mode)
-                                          .addComponent(yLabel)
-                                          .addComponent(this.level)
-                                          .addComponent(hLabel)
-                                          .addComponent(this.head)
+                                          .addComponent(yLabel).addComponent(this.level)
+                                          .addComponent(hLabel).addComponent(this.head)
                                 )
                       )
             );
-
-            // setup events
-            this.add.addActionListener(this.new CellOperation((e -> this.add())));
-            this.remove.addActionListener(this.new CellOperation((e -> this.remove())));
-            this.mode.addActionListener(this.new CellOperation((e -> this.mode())));
-
-            this.add(this.add);
-            this.add(this.remove);
         }
 
-        private final JButton add;
-        private final JButton remove;
-        private final JButton mode;
+        private final EfcStandardButton add;
+        private final EfcStandardButton remove;
+        private final EfcStandardButton mode;
         private final JSpinner longitude;
         private final JSpinner level;
         private final JSpinner latitude;
@@ -220,7 +183,7 @@ public class EfcWaypointPanel extends JPanel {
          * @return a waypoint
          */
         public Waypoint getWaypoint() {
-            if (this.mode.getText().equals("L")) {
+            if (this.mode.getText().equals(EfcWaypointPanel.L)) {
                 return Waypoint.location((Integer) this.longitude.getValue(), (Integer) this.level.getValue(), (Integer) this.latitude.getValue(), (Integer) this.head.getValue());
             }
             else {
@@ -244,12 +207,12 @@ public class EfcWaypointPanel extends JPanel {
         }
 
         private void mode() {
-            if (this.mode.getText().equals("L")) {
-                this.mode.setText("P");
+            if (this.mode.getText().equals(EfcWaypointPanel.L)) {
+                this.mode.setText(EfcWaypointPanel.P);
                 this.level.setEnabled(false);
             }
             else {
-                this.mode.setText("L");
+                this.mode.setText(EfcWaypointPanel.L);
                 this.level.setEnabled(true);
             }
         }
@@ -288,45 +251,37 @@ public class EfcWaypointPanel extends JPanel {
         pane.setAutoscrolls(true);
         pane.getVerticalScrollBar().setUnitIncrement(24);
         this.add(pane);
-        JPanel buttons = new JPanel(new GridLayout(3, 1));
-        JButton load = new JButton("<<");
-        load.setFont(EfcMainFrame.MONOBOLD);
-        load.setFocusPainted(false);
-        load.addActionListener(e -> this.load());
-        buttons.add(load);
-        JButton apply = new JButton(">>");
-        apply.setFont(EfcMainFrame.MONOBOLD);
-        apply.setFocusPainted(false);
-        apply.addActionListener(e -> this.apply());
-        buttons.add(apply);
-        JButton reverse = new JButton("REV");
-        reverse.setFont(EfcMainFrame.MONOBOLD);
-        reverse.setFocusPainted(false);
-        reverse.addActionListener(e -> this.reverse());
-        buttons.add(reverse);
+
+        JPanel buttons = new JPanel(new GridLayout(4, 1));
+        buttons.add(new EfcStandardButton("RST", e -> this.main.loadDefault()));
+        buttons.add(new EfcStandardButton("  <<  ", e -> this.load()));
+        buttons.add(new EfcStandardButton("  >>  ", e -> this.apply()));
+        buttons.add(new EfcStandardButton("REV", e -> this.reverse()));
         this.add(buttons, BorderLayout.EAST);
 
-        this.load();
-        // setup events
-        // commit.addActionListener(e -> this.commit());
-        // abort.addActionListener(e -> this.abort());
+    }
+
+    public static Component applySize(Component c, Dimension size) {
+        c.setMinimumSize(size);
+        c.setPreferredSize(size);
+        c.setMaximumSize(size);
+        return c;
     }
 
     /** The size of a cell in the weight descriptor configuration dialog. */
     private static final Dimension CELL_SIZE = new Dimension(340, 52);
     /** The size of the action button in a cell. */
     private static final Dimension ACTION_SIZE = new Dimension(24, 24);
-    /** String constant of the {@code Remove} action. */
     private static final String REMOVE = "-";
-    /** String constant of the {@code Add} action. */
     private static final String ADD = "+";
+    private static final String L = "L";
+    private static final String P = "P";
 
     /** Reference to the main window's controller. */
     private EfcMainFrame main;
     /** Panel for holding all weight configuration cells. */
     private JPanel waypointPanel;
-
-    private transient List<EfcWaypointCell> waypoints;
+    private List<EfcWaypointCell> waypoints;
 
     public void apply() {
         this.waypoints.clear();

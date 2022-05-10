@@ -1,10 +1,8 @@
 package org.pgstyle.efc.application.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -17,16 +15,16 @@ import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.LayoutStyle;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
@@ -36,6 +34,7 @@ import org.pgstyle.efc.application.cli.CmdUtils;
 import org.pgstyle.efc.application.common.EfcConfig;
 import org.pgstyle.efc.application.common.EfcResources;
 import org.pgstyle.efc.application.common.EfcUtils;
+import org.pgstyle.rst2.application.gui.EfcStandardButton;
 
 /**
  * <p>
@@ -105,21 +104,24 @@ public final class EfcMainFrame {
 
         // create subelements
         // this.weightsConfig = new EfcWeightsFrame(this, this.frame);
+        this.waypoints = new EfcWaypointPanel(this);
         JPanel ioPanel = new JPanel();
         ioPanel.setLayout(new BorderLayout());
         ioPanel.add(this.makeInputPanel(), BorderLayout.NORTH);
         ioPanel.add(this.makeOutputPanel(), BorderLayout.CENTER);
-        this.frame.add(new EfcWaypointPanel(this), BorderLayout.WEST);
+        this.frame.add(this.waypoints, BorderLayout.WEST);
         this.frame.add(ioPanel, BorderLayout.CENTER);
 
         // load setting before showing the window
         this.frame.pack();
-        this.loadDefault(this.efcConfig);
+        this.loadDefault();
+        this.waypoints.load();
         this.frame.setVisible(true);
     }
 
     /** Stored configurations. */
     private EfcConfig efcConfig;
+    private EfcWaypointPanel waypoints;
     /** Closing state of the main window. */
     private boolean closed;
 
@@ -138,6 +140,20 @@ public final class EfcMainFrame {
      */
     public boolean isClosed() {
         return this.closed;
+    }
+
+    /**
+     * Get flight plan from the flight plan text area.
+     */
+    public String getFlightPlan() {
+        return this.flightPlan.getText();
+    }
+
+    /**
+     * Commits all configurations and engages the randomiser.
+     */
+    public void updateFlightPlan(String flightPlan) {
+        this.flightPlan.setText(flightPlan);
     }
 
     /**
@@ -162,15 +178,6 @@ public final class EfcMainFrame {
     }
 
     /**
-     * Updates the weight descriptor with the given string.
-     *
-     * @param weights the new weights descriptor
-     */
-    // public void updateWeights(String weights) {
-    //     this.weights.setText(weights);
-    // }
-
-    /**
      * Creates the subelements for input box.
      *
      * @return a {@code JPanel} containing the subelements
@@ -183,14 +190,6 @@ public final class EfcMainFrame {
         // subelements
         JLabel label = new JLabel("Flight Plan:");
         label.setFont(EfcMainFrame.MONOBOLD);
-        JButton copy = new JButton("CPY");
-        copy.setFont(EfcMainFrame.MONOBOLD);
-        copy.setFocusPainted(false);
-        copy.addActionListener(e -> this.copy(this.flightPlan));
-        JButton save = new JButton("OUT");
-        save.setFont(EfcMainFrame.MONOBOLD);
-        save.setFocusPainted(false);
-        save.addActionListener(e -> this.saveFlightPlan());
         this.flightPlan = new JTextArea("");
         JScrollPane pane = new JScrollPane(this.flightPlan,
                                                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -202,7 +201,11 @@ public final class EfcMainFrame {
         this.flightPlan.setBorder(BorderFactory.createEtchedBorder());
 
         // setup layout
-        EfcMainFrame.setupPanelLayout(layout, label, copy, save, pane);
+        EfcMainFrame.setupPanelLayout(layout,
+                                      label,
+                                      new EfcStandardButton("CPY", e -> this.copy(this.flightPlan)),
+                                      new EfcStandardButton("OUT", e -> this.saveFlightPlan()),
+                                      pane);
 
         return panel;
     }
@@ -220,14 +223,6 @@ public final class EfcMainFrame {
         // subelements
         JLabel label = new JLabel("Output:");
         label.setFont(EfcMainFrame.MONOBOLD);
-        JButton copy = new JButton("CPY");
-        copy.setFont(EfcMainFrame.MONOBOLD);
-        copy.setFocusPainted(false);
-        copy.addActionListener(e -> this.copy(this.output));
-        JButton save = new JButton("OUT");
-        save.setFont(EfcMainFrame.MONOBOLD);
-        save.setFocusPainted(false);
-        save.addActionListener(e -> this.saveOutput());
         this.output = new JTextArea("");
         JScrollPane pane = new JScrollPane(this.output,
                                                  ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -239,29 +234,28 @@ public final class EfcMainFrame {
         this.output.setBorder(BorderFactory.createEtchedBorder());
 
         // setup layout
-        EfcMainFrame.setupPanelLayout(layout, label, copy, save, pane);
+        EfcMainFrame.setupPanelLayout(layout,
+                                      label,
+                                      new EfcStandardButton("CPY", e -> this.copy(this.output)),
+                                      new EfcStandardButton("OUT", e -> this.saveOutput()),
+                                      pane);
 
         return panel;
     }
 
-    private static void setupPanelLayout(GroupLayout layout, JLabel label, JButton copy, JButton save, JScrollPane pane) {
+    private static void setupPanelLayout(GroupLayout layout, JLabel label, EfcStandardButton copy, EfcStandardButton save, JScrollPane pane) {
         // setup layout
         layout.setHorizontalGroup(
             layout.createParallelGroup(Alignment.LEADING)
                         .addGroup(
                             layout.createSequentialGroup()
-                                        .addGap(5)
-                                        .addComponent(label)
-                                        .addGap(5)
-                                        .addComponent(copy)
-                                        .addGap(5)
-                                        .addComponent(save)
+                                        .addGap(5).addComponent(label)
+                                        .addGap(5).addComponent(copy)
+                                        .addGap(5).addComponent(save)
                         )
                         .addGroup(
                             layout.createSequentialGroup()
-                                        .addGap(5)
-                                        .addComponent(pane)
-                                        .addGap(5)
+                                  .addGap(5).addComponent(pane).addGap(5)
                         )
         );
         layout.setVerticalGroup(
@@ -280,27 +274,17 @@ public final class EfcMainFrame {
         );
     }
 
-    public String getFlightPlan() {
-        return this.flightPlan.getText();
-    }
-
     /**
      * Loads the configuration from command line into the main window.
      *
      * @param config the configuration container
      */
-    private void loadDefault(EfcConfig config) {
-        this.flightPlan.setText(config.flightPlan());
+    public void loadDefault() {
+        this.flightPlan.setText(this.efcConfig.flightPlan());
         // print to output text area
         this.write("loaded settings from EfcConfig/CommandLineArguments");
-        this.write("flightPlan = " + config.flightPlan());
-    }
-
-    /**
-     * Commits all configurations and engages the randomiser.
-     */
-    public void updateFlightPlan(String flightPlan) {
-        this.flightPlan.setText(flightPlan);
+        this.write("flightPlan = " + this.efcConfig.flightPlan());
+        this.waypoints.load();
     }
 
     /**
