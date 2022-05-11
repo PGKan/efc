@@ -1,14 +1,18 @@
 package org.pgstyle.efc.application.common;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import org.pgstyle.efc.application.ApplicationException;
+import org.pgstyle.efc.model.Connection;
+import org.pgstyle.efc.model.FlightParameter;
+import org.pgstyle.efc.model.Path;
 import org.pgstyle.efc.model.Waypoint;
 
 public final class EfcComputingUnit {
@@ -43,6 +47,14 @@ public final class EfcComputingUnit {
             throw new ApplicationException("Empty flight plan");
         }
         return list;
+    }
+
+    public static Map<Path, FlightParameter> calculateFlightParameter(List<Path> paths) {
+        Map<Path, FlightParameter> map = new LinkedHashMap<>();
+        for (int i = 0; i < paths.size(); i++) {
+            map.put(paths.get(i), FlightParameter.of(String.valueOf((char) ('A' + i)), paths.get(i).connections()));
+        }
+        return map;
     }
 
     private EfcComputingUnit() {}

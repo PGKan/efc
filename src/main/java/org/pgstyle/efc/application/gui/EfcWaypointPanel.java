@@ -29,7 +29,7 @@ import javax.swing.SpinnerNumberModel;
 
 import org.pgstyle.efc.application.common.EfcComputingUnit;
 import org.pgstyle.efc.model.Waypoint;
-import org.pgstyle.rst2.application.gui.EfcStandardButton;
+import org.pgstyle.efc.application.gui.EfcStandardButton;
 
 /**
  * Frame controller for the config function of weight descriptors of the

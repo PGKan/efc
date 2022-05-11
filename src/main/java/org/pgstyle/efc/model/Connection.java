@@ -14,6 +14,14 @@ public final class Connection {
     private final Waypoint start;
     private final Waypoint end;
 
+    public Waypoint start() {
+        return this.start;
+    }
+
+    public Waypoint end() {
+        return this.end;
+    }
+
     public Waypoint displacement() {
         return this.end.translate(this.start.negate());
     }

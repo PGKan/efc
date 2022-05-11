@@ -42,6 +42,17 @@ public final class Path {
         return this.waypoints.size();
     }
 
+    public List<Connection> connections() {
+        List<Connection> list = new ArrayList<>();
+        for (int i = 1; i < this.waypoints.size(); i++) {
+            list.add(Connection.between(this.waypoints.get(i - 1), this.waypoints.get(i)));
+        }
+        if (list.isEmpty()) {
+            list.add(Connection.between(this.waypoints.get(0), this.waypoints.get(0)));
+        }
+        return list;
+    }
+
     private <R> Stream<R> connections(Function<Connection, R> function) {
         Stream<R> stream = Stream.empty();
         Iterator<Waypoint> iterator = this.waypoints.iterator();

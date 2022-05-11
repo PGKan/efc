@@ -17,14 +17,12 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.LayoutStyle;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
@@ -34,7 +32,6 @@ import org.pgstyle.efc.application.cli.CmdUtils;
 import org.pgstyle.efc.application.common.EfcConfig;
 import org.pgstyle.efc.application.common.EfcResources;
 import org.pgstyle.efc.application.common.EfcUtils;
-import org.pgstyle.rst2.application.gui.EfcStandardButton;
 
 /**
  * <p>
@@ -203,8 +200,8 @@ public final class EfcMainFrame {
         // setup layout
         EfcMainFrame.setupPanelLayout(layout,
                                       label,
-                                      new EfcStandardButton("CPY", e -> this.copy(this.flightPlan)),
-                                      new EfcStandardButton("OUT", e -> this.saveFlightPlan()),
+                                      new EfcStandardButton(" CPY ", e -> this.copy(this.flightPlan)),
+                                      new EfcStandardButton(" OUT ", e -> this.saveFlightPlan()),
                                       pane);
 
         return panel;
@@ -236,8 +233,8 @@ public final class EfcMainFrame {
         // setup layout
         EfcMainFrame.setupPanelLayout(layout,
                                       label,
-                                      new EfcStandardButton("CPY", e -> this.copy(this.output)),
-                                      new EfcStandardButton("OUT", e -> this.saveOutput()),
+                                      new EfcStandardButton(" CPY ", e -> this.copy(this.output)),
+                                      new EfcStandardButton(" OUT ", e -> this.saveOutput()),
                                       pane);
 
         return panel;
