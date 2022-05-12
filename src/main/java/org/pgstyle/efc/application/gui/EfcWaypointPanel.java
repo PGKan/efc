@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -27,7 +28,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 
 import org.pgstyle.efc.application.common.EfcComputingUnit;
-import org.pgstyle.efc.application.common.EfcUtils;
+import org.pgstyle.efc.model.Connection;
+import org.pgstyle.efc.model.FlightParameter;
 import org.pgstyle.efc.model.Path;
 import org.pgstyle.efc.model.Waypoint;
 
@@ -305,7 +307,9 @@ public class EfcWaypointPanel extends JPanel {
         if (Objects.nonNull(path) && path.length() > 1) {
             paths.add(path);
         }
-        this.main.rewrite(EfcComputingUnit.calculateFlightParameter(paths).values().stream().map(Object::toString).collect(Collectors.joining()));
+        Map<Path, FlightParameter> result = EfcComputingUnit.calculateFlightParameter(paths);
+        //this.main.rewrite(result.values().stream().map(Object::toString).collect(Collectors.joining()));
+        this.main.rewrite(result.values().stream().map(Object::toString).collect(Collectors.joining()));
     }
 
     public void load() {
