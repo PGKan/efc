@@ -26,7 +26,7 @@ public final class Connection {
         return this.end.translate(this.start.negate());
     }
 
-    public float distance() {
+    public double distance() {
         return this.displacement().absolute();
     }
 
@@ -34,9 +34,9 @@ public final class Connection {
         return this.displacement().normalise();
     }
 
-    public float heading() {
+    public double heading() {
         Waypoint vector = this.vector().negate();
-        return (float) (Math.atan2(vector.x(), vector.z()) * 180 / Math.PI);
+        return Math.atan2(vector.x(), vector.z()) * 180 / Math.PI;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.pgstyle.efc.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -47,10 +48,7 @@ public final class Path {
         for (int i = 1; i < this.waypoints.size(); i++) {
             list.add(Connection.between(this.waypoints.get(i - 1), this.waypoints.get(i)));
         }
-        if (list.isEmpty()) {
-            list.add(Connection.between(this.waypoints.get(0), this.waypoints.get(0)));
-        }
-        return list;
+        return Collections.unmodifiableList(list);
     }
 
     private <R> Stream<R> connections(Function<Connection, R> function) {
@@ -65,11 +63,11 @@ public final class Path {
         return stream;
     }
 
-    public Stream<Float> distances() {
+    public Stream<Double> distances() {
         return this.connections(Connection::distance);
     }
 
-    public Stream<Float> headings() {
+    public Stream<Double> headings() {
         return this.connections(Connection::heading);
     }
 

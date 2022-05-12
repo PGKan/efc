@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -28,8 +27,9 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 
 import org.pgstyle.efc.application.common.EfcComputingUnit;
+import org.pgstyle.efc.application.common.EfcUtils;
+import org.pgstyle.efc.model.Path;
 import org.pgstyle.efc.model.Waypoint;
-import org.pgstyle.efc.application.gui.EfcStandardButton;
 
 /**
  * Frame controller for the config function of weight descriptors of the
@@ -184,10 +184,10 @@ public class EfcWaypointPanel extends JPanel {
          */
         public Waypoint getWaypoint() {
             if (this.mode.getText().equals(EfcWaypointPanel.L)) {
-                return Waypoint.location((Integer) this.longitude.getValue(), (Integer) this.level.getValue(), (Integer) this.latitude.getValue(), (Integer) this.head.getValue());
+                return Waypoint.location(((Number) this.longitude.getValue()).doubleValue(), ((Number) this.level.getValue()).doubleValue(), ((Number) this.latitude.getValue()).doubleValue(), ((Number) this.head.getValue()).intValue());
             }
             else {
-                return Waypoint.point((Integer) this.longitude.getValue(), (Integer) this.latitude.getValue(), (Integer) this.head.getValue());
+                return Waypoint.point(((Number) this.longitude.getValue()).doubleValue(), ((Number) this.latitude.getValue()).doubleValue(), ((Number) this.head.getValue()).intValue());
             }
         }
 
@@ -286,7 +286,26 @@ public class EfcWaypointPanel extends JPanel {
     public void apply() {
         this.waypoints.clear();
         Stream.of(this.waypointPanel.getComponents()).map(EfcWaypointCell.class::cast).forEach(this.waypoints::add);
-        this.main.updateFlightPlan(this.waypoints.stream().map(EfcWaypointCell::getWaypoint).map(Objects::toString).collect(Collectors.joining(" ")));
+        List<Waypoint> waypointList = this.waypoints.stream().map(EfcWaypointCell::getWaypoint).collect(Collectors.toList());
+        this.main.updateFlightPlan(waypointList.stream().map(Objects::toString).collect(Collectors.joining(" ")));
+        List<Path> paths = new ArrayList<>();
+        Path path = null;
+        for (Waypoint waypoint : waypointList) {
+            if (Objects.isNull(path)) {
+                path = Path.startsAt(waypoint);
+            }
+            else if (waypoint.isLocation()) {
+                paths.add(path.to(waypoint));
+                path = Path.startsAt(waypoint);
+            }
+            else {
+                path.to(waypoint);
+            }
+        }
+        if (Objects.nonNull(path) && path.length() > 1) {
+            paths.add(path);
+        }
+        this.main.rewrite(EfcComputingUnit.calculateFlightParameter(paths).values().stream().map(Object::toString).collect(Collectors.joining()));
     }
 
     public void load() {

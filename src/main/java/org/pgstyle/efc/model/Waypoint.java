@@ -6,23 +6,23 @@ public final class Waypoint {
         return Waypoint.point(0, 0);
     }
 
-    public static Waypoint point(int x, int z) {
+    public static Waypoint point(double x, double z) {
         return Waypoint.point(x, z, 128);
     }
 
-    public static Waypoint point(int x, int z, int h) {
+    public static Waypoint point(double x, double z, int h) {
         return new Waypoint(false, x, 0, z, h);
     }
 
-    public static Waypoint location(int x, int y, int z) {
+    public static Waypoint location(double x, double y, double z) {
         return Waypoint.location(x, y, z, 128);
     }
 
-    public static Waypoint location(int x, int y, int z, int h) {
+    public static Waypoint location(double x, double y, double z, int h) {
         return new Waypoint(true, x, y, z, h);
     }
 
-    private Waypoint(boolean l, int x, int y, int z, int h) {
+    private Waypoint(boolean l, double x, double y, double z, int h) {
         this.l = l;
         this.x = x;
         this.y = y;
@@ -31,24 +31,24 @@ public final class Waypoint {
     }
 
     private final boolean l;
-    private final int x;
-    private final int y;
-    private final int z;
+    private final double x;
+    private final double y;
+    private final double z;
     private final int h;
 
     public boolean isLocation() {
         return this.l;
     }
 
-    public int x() {
+    public double x() {
         return this.x;
     }
 
-    public int y() {
+    public double y() {
         return this.isLocation() ? this.y : 0;
     }
 
-    public int z() {
+    public double z() {
         return this.z;
     }
 
@@ -56,12 +56,12 @@ public final class Waypoint {
         return this.h;
     }
 
-    public int absolute() {
-        return (int) Math.sqrt(this.x() * this.x() + this.y() * this.y() + this.z() * this.z());
+    public double absolute() {
+        return Math.sqrt(this.x() * this.x() + this.y() * this.y() + this.z() * this.z());
     }
 
     public Waypoint normalise() {
-        int length = this.absolute();
+        double length = this.absolute();
         return new Waypoint(this.isLocation(), this.x() / length, -this.y() / length, -this.z() / length, this.h());
     }
 
@@ -73,17 +73,17 @@ public final class Waypoint {
         return this.translate(location.x(), location.y(), location.z());
     }
 
-    public Waypoint translate(int x, int y, int z) {
+    public Waypoint translate(double x, double y, double z) {
         return new Waypoint(this.isLocation(), this.x() + x, this.y() + y, this.z() + z, this.h());
     }
 
     @Override
     public String toString() {
         if (this.isLocation()) {
-            return String.format("L%d/%d/%d/%d", this.x(), this.y(), this.z(), this.h());
+            return String.format("L%.0f/%.0f/%.0f/%d", this.x(), this.y(), this.z(), this.h());
         }
         else {
-            return String.format("P%d/%d/%d", this.x(), this.z(), this.h());
+            return String.format("P%.0f/%.0f/%d", this.x(), this.z(), this.h());
         }
     }
 
