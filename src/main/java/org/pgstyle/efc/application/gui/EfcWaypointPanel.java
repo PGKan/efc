@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 
 import org.pgstyle.efc.application.common.EfcComputingUnit;
-import org.pgstyle.efc.model.Connection;
 import org.pgstyle.efc.model.FlightParameter;
 import org.pgstyle.efc.model.Path;
 import org.pgstyle.efc.model.Waypoint;
@@ -92,11 +92,10 @@ public class EfcWaypointPanel extends JPanel {
             this.add = new EfcStandardButton(EfcWaypointPanel.ADD, this.new CellOperation((e -> this.add())));
             this.remove = new EfcStandardButton(EfcWaypointPanel.REMOVE, this.new CellOperation((e -> this.remove())));
             this.mode = new EfcStandardButton(waypoint.isLocation()? EfcWaypointPanel.L : EfcWaypointPanel.P, this.new CellOperation((e -> this.mode())));
-            this.longitude = new JSpinner(new SpinnerNumberModel(waypoint.x(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
-            this.level = new JSpinner(new SpinnerNumberModel(waypoint.y(), -64, 384, 2));
-            this.latitude = new JSpinner(new SpinnerNumberModel(waypoint.z(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
-            this.head = new JSpinner(new SpinnerNumberModel(waypoint.h(), 0, 128, 2));
-            this.level.setEnabled(waypoint.isLocation());
+            this.longitude = new EfcStandardSpinner(new SpinnerNumberModel(waypoint.x(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
+            this.level = new EfcStandardSpinner(new SpinnerNumberModel(waypoint.y(), -64, 384, 2));
+            this.latitude = new EfcStandardSpinner(new SpinnerNumberModel(waypoint.z(), Integer.MIN_VALUE, Integer.MAX_VALUE, 10));
+            this.head = new EfcStandardSpinner(new SpinnerNumberModel(waypoint.h(), 0, 128, 2));
 
             // setup the GUI appearance
             this.setBorder(BorderFactory.createEtchedBorder());
@@ -104,14 +103,11 @@ public class EfcWaypointPanel extends JPanel {
             EfcWaypointPanel.applySize(this.add, EfcWaypointPanel.ACTION_SIZE);
             EfcWaypointPanel.applySize(this.remove, EfcWaypointPanel.ACTION_SIZE);
             EfcWaypointPanel.applySize(this.mode, EfcWaypointPanel.ACTION_SIZE);
-            this.longitude.setFont(EfcMainFrame.MONO);
-            this.level.setFont(EfcMainFrame.MONO);
-            this.latitude.setFont(EfcMainFrame.MONO);
-            this.head.setFont(EfcMainFrame.MONO);
-            ((JSpinner.NumberEditor) this.longitude.getEditor()).getTextField().setColumns(12);
-            ((JSpinner.NumberEditor) this.latitude.getEditor()).getTextField().setColumns(12);
-            ((JSpinner.NumberEditor) this.level.getEditor()).getTextField().setColumns(5);
-            ((JSpinner.NumberEditor) this.head.getEditor()).getTextField().setColumns(5);
+            this.longitude.setColumns(12);
+            this.level.setColumns(5);
+            this.latitude.setColumns(12);
+            this.head.setColumns(5);
+            this.level.setEnabled(waypoint.isLocation());
 
             JLabel xLabel = new JLabel("X");
             JLabel yLabel = new JLabel("Y");
@@ -174,10 +170,10 @@ public class EfcWaypointPanel extends JPanel {
         private final EfcStandardButton add;
         private final EfcStandardButton remove;
         private final EfcStandardButton mode;
-        private final JSpinner longitude;
-        private final JSpinner level;
-        private final JSpinner latitude;
-        private final JSpinner head;
+        private final EfcStandardSpinner longitude;
+        private final EfcStandardSpinner level;
+        private final EfcStandardSpinner latitude;
+        private final EfcStandardSpinner head;
 
         /**
          * Returns a waypoint from the value of this cell.

@@ -57,12 +57,12 @@ public final class Waypoint {
     }
 
     public double absolute() {
-        return Math.sqrt(this.x() * this.x() + this.y() * this.y() + this.z() * this.z());
+        return Math.sqrt(this.x() * this.x() + this.z() * this.z());
     }
 
     public Waypoint normalise() {
         double length = this.absolute();
-        return new Waypoint(this.isLocation(), this.x() / length, -this.y() / length, -this.z() / length, this.h());
+        return new Waypoint(this.isLocation(), this.x() / length, 0, this.z() / length, this.h());
     }
 
     public Waypoint negate() {

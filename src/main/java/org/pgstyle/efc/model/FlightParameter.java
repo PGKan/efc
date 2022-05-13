@@ -104,21 +104,21 @@ public final class FlightParameter {
     public String toString() {
         StringBuilder builder = new StringBuilder(String.format("** Flight Director/Route ", this.name));
         builder.append(String.format("%s >>> %s%n", this.start, this.end));
-        builder.append(String.format(" >  Total Distance| %1$.0f%n", this.totalDistance));
+        builder.append(String.format(" >  Total Distance|%1$ .0f%n", this.totalDistance));
         builder.append(String.format(" > Total Elevation|%+04.0f%n", this.totalElevation));
-        builder.append(String.format(" >   Non-Stop Fuel| %.0f (%.3f)%n", Math.ceil(this.nonStopFuel), this.nonStopFuel));
-        builder.append(String.format(" >  Suggested Fuel| %d%n", this.suggestedFuel));
-        builder.append(String.format(" > Full Power Fuel| %d%n", this.fullPowerFuel));
+        builder.append(String.format(" >   Non-Stop Fuel|% .0f (%.3f)%n", Math.max(0, Math.ceil(this.nonStopFuel)), this.nonStopFuel));
+        builder.append(String.format(" >  Suggested Fuel|% d%n", Math.max(0, this.suggestedFuel)));
+        builder.append(String.format(" > Full Power Fuel|% d%n", this.fullPowerFuel));
         builder.append(String.format("------------------------------------------------------------%n"));
         for (int i = 0; i < this.connections.size(); i++) {
             builder.append("* Waypoint ").append(this.name).append(String.format("%02d%n", i));
             Connection connection = this.connections.get(i);
             builder.append(connection).append(EfcUtils.NEWLINE);
             builder.append(String.format(" >       Heading|%+04.0f (%03.0f)%n", this.headings.get(connection), this.headings.get(connection) + 180));
-            builder.append(String.format(" >      Distance| %.0f%n", this.distances.get(connection)));
+            builder.append(String.format(" >      Distance|% .0f%n", this.distances.get(connection)));
             builder.append(String.format(" >     Elevation|%+04.0f%n", this.elevations.get(connection)));
-            builder.append(String.format(" > Distance Fuel| %1$.0f (%1$.3f)%n", this.dxdzFuels.get(connection)));
-            builder.append(String.format(" > Altitude Fuel| %.0f (%.3f)%n", Math.ceil(this.dyFuels.get(connection)), this.dyFuels.get(connection)));
+            builder.append(String.format(" > Distance Fuel|%1$ .0f (%1$.3f)%n", this.dxdzFuels.get(connection)));
+            builder.append(String.format(" > Altitude Fuel|% .0f (%.3f)%n", Math.ceil(this.dyFuels.get(connection)), this.dyFuels.get(connection)));
             builder.append(String.format("------------------------------------------------------------%n"));
         }
         return builder.toString();

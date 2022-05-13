@@ -99,6 +99,7 @@ public final class EfcMainFrame {
             }
         });
 
+
         // create subelements
         // this.weightsConfig = new EfcWeightsFrame(this, this.frame);
         this.waypoints = new EfcWaypointPanel(this);
