@@ -35,8 +35,8 @@ public final class Connection {
     }
 
     public double heading() {
-        Waypoint vector = this.vector().negate();
-        return Math.atan2(vector.x(), vector.z()) * 180 / Math.PI;
+        Waypoint vector = this.displacement();
+        return Math.atan2(-vector.x(), vector.z()) * 180 / Math.PI;
     }
 
     @Override
